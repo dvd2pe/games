@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+*token*.txt
+*.pem
+*.p12
+*.pfx
+__pycache__/
+*.pyc
+Thumbs.db
+.DS_Store
