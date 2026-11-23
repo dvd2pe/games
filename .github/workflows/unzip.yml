@@ -1,0 +1,41 @@
+name: Unpack game archives
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.zip'
+      - '**/*.ZIP'
+      - 'scripts/extract_archives.py'
+      - '.github/workflows/unzip.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: unzip-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Extract archives
+        run: python3 scripts/extract_archives.py
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git commit -m "Unpack uploaded game archives [skip ci]"
+          git push origin HEAD:main
